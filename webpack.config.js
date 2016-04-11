@@ -10,6 +10,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const exec = require('child_process').exec;
 
 // 页面名字
 const pageName = ['index','list'];
@@ -55,6 +56,11 @@ module.exports = (() => {
 
     if (ENV === 'build' || ENV === 'publish') {
         config.plugins.push(new webpack.optimize.UglifyJsPlugin())
+    }
+
+    // 删除上次build留下的文件
+    if(ENV === 'build'){
+        exec('rm -rf build')
     }
 
     config.devtool = ENV === 'build' ? 'inline-source-map' : 'cheap-module-inline-source-map';
