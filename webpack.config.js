@@ -22,7 +22,7 @@ const INFO = JSON.parse(fs.readFileSync('./package.json'));
 // npm 指令
 const ENV = process.env.npm_lifecycle_event;
 // 输出的js文件路径和css路径
-const publishLink = ENV === 'beta' ? 'http://awp-assets.sankuai.com/~jackie.wu/' : 'http://awp-assets.meituan.net/~jackie.wu/';
+const publishLink = ENV === 'beta' ? 'http://some.beta.com/' : 'http://some.publish.com/';
 
 
 module.exports = (() => {
