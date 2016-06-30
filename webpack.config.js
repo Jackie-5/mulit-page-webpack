@@ -1,7 +1,9 @@
+"use strict";
 /**
  * Created by JackieWu
  * 多页面的webpack配置
  */
+
 const fs = require('fs');
 const webpack = require('webpack');
 const path = require('path');
@@ -13,18 +15,30 @@ const autoprefixer = require('autoprefixer');
 const exec = require('child_process').exec;
 
 // 页面名字
-const pageName = ['index','list'];
+const pageName = [];
 // 页面引入的js的链接
-const fileLink = ['./src/js/index.js','./src/js/list.js'];
+const fileLink = [];
+
+fs.readdirSync(path.join(__dirname , 'src')).forEach((item)=>{
+    if(!!~item.indexOf('.html')){
+        pageName.push(item.split('.html')[0]);
+        fileLink.push('./src/js/' + item.split('.html')[0] + '.js')
+    }
+});
+
 // 需要copy的文件 如自定义的文件名或者文件夹
-const copyFile = [];
+const copyFile = ['midas'];
 // 读取 package.json文件生成的版本号
-const INFO = JSON.parse(fs.readFileSync('./package.json'));
+// const INFO = JSON.parse(fs.readFileSync('./repo-info.json'));
 // npm 指令
 const ENV = process.env.npm_lifecycle_event;
-// 输出的js文件路径和css路径
-const publishLink = ENV === 'beta' ? 'http://some.beta.com/' : 'http://some.publish.com/';
 
+
+const query = {
+    name: '[name].[hash].[ext]',
+    publicPath: './images/',
+    cssPath: '../images/'
+};
 
 module.exports = (() => {
     const config = {};
@@ -50,18 +64,12 @@ module.exports = (() => {
         chunkFilename: 'js/[id].chunk.js'   //chunk生成的配置
     };
 
-    if (ENV !== 'server' && ENV !== 'build') {
-        config.output.publicPath = publishLink + INFO.name + '/' + INFO.version + '/'
+
+    if (ENV === 'build') {
+        exec('rm -rf build');
+        config.plugins.push(new webpack.optimize.UglifyJsPlugin());
     }
 
-    if (ENV === 'build' || ENV === 'publish') {
-        config.plugins.push(new webpack.optimize.UglifyJsPlugin())
-    }
-
-    // 删除上次build留下的文件
-    if(ENV === 'build'){
-        exec('rm -rf build')
-    }
 
     config.devtool = ENV === 'build' ? 'inline-source-map' : 'cheap-module-inline-source-map';
 
@@ -85,11 +93,7 @@ module.exports = (() => {
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
                 loader: 'path-file-loader',
-                query: {
-                    name: '[name].[hash].[ext]',
-                    publicPath: './images/',
-                    cssPath: '../images/'
-                }
+                query: query
             },
             {
                 test: /\.less$/,
@@ -110,10 +114,10 @@ module.exports = (() => {
     ];
 
     config.plugins.push(
-        new CommonsChunkPlugin({
-            name: 'common',
-            minChunks: 2
-        }),
+        // new CommonsChunkPlugin({
+        //     name: 'common',
+        //     minChunks: 2
+        // }),
         new ExtractTextPlugin('css/[name].css'),
         // Reference: http://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
         // Dedupe modules in the output

@@ -12,7 +12,7 @@
   "scripts": {
     "server": "webpack-dev-server --history-api-fallback --inline --progress",
     "start": "npm run server",
-    "build": "webpack"
+    "build": "webpack -p"
   },
   "dependencies": {
     "path": "^0.12.7"
